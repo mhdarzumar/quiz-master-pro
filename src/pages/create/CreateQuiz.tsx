@@ -1,6 +1,13 @@
+"use client";
 
 import Layout from "@/components/layout/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +15,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, ChevronDown, ChevronUp, Clock, Plus, Trash, Upload, X } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  CalendarIcon,
+  Clock,
+  Plus,
+  Trash,
+  Upload,
+} from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -35,15 +51,15 @@ const INITIAL_QUESTION: Question = {
 export default function CreateQuiz() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [duration, setDuration] = useState(30);
   const [passingScore, setPassingScore] = useState(60);
   const [proctoring, setProctoring] = useState(true);
   const [randomize, setRandomize] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([{ ...INITIAL_QUESTION }]);
   const [participantEmails, setParticipantEmails] = useState("");
-  
+
   const { toast } = useToast();
 
   const handleAddQuestion = () => {
@@ -59,67 +75,73 @@ export default function CreateQuiz() {
 
   const handleRemoveQuestion = (id: number) => {
     if (questions.length > 1) {
-      setQuestions(questions.filter(q => q.id !== id));
+      setQuestions(questions.filter((q) => q.id !== id));
     } else {
       toast({
         title: "Cannot Remove",
         description: "You need at least one question in the quiz.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const updateQuestion = (id: number, data: Partial<Question>) => {
     setQuestions(
-      questions.map(q => (q.id === id ? { ...q, ...data } : q))
+      questions.map((q) => (q.id === id ? { ...q, ...data } : q))
     );
   };
 
   const handleQuestionTypeChange = (id: number, type: "mcq" | "truefalse") => {
-    const question = questions.find(q => q.id === id);
-    if (question) {
-      const updatedQuestion: Question = {
-        ...question,
-        type,
-        options: type === "mcq" ? ["", "", "", ""] : ["True", "False"],
-        correctAnswer: type === "mcq" ? 0 : true,
-      };
-      updateQuestion(id, updatedQuestion);
-    }
+    const updated = questions.map((q) =>
+      q.id === id
+        ? {
+            ...q,
+            type,
+            options: type === "mcq" ? ["", "", "", ""] : ["True", "False"],
+            correctAnswer: type === "mcq" ? 0 : true,
+          }
+        : q
+    );
+    setQuestions(updated);
   };
 
-  const handleOptionChange = (questionId: number, optionIndex: number, value: string) => {
-    const question = questions.find(q => q.id === questionId);
-    if (question) {
-      const newOptions = [...question.options];
-      newOptions[optionIndex] = value;
-      updateQuestion(questionId, { options: newOptions });
-    }
+  const handleOptionChange = (
+    questionId: number,
+    optionIndex: number,
+    value: string
+  ) => {
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === questionId
+          ? {
+              ...q,
+              options: q.options.map((opt, i) =>
+                i === optionIndex ? value : opt
+              ),
+            }
+          : q
+      )
+    );
   };
 
   const handleSubmit = () => {
-    // Validate form
     if (!title) {
       toast({
-        title: "Missing Information",
+        title: "Missing Title",
         description: "Please enter a quiz title.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
-
     if (!startDate || !endDate) {
       toast({
-        title: "Missing Information",
-        description: "Please select start and end dates.",
-        variant: "destructive"
+        title: "Missing Dates",
+        description: "Please select both start and end dates.",
+        variant: "destructive",
       });
       return;
     }
 
-    // Additional validation could be added here
-
-    // Success toast when all validation passes
     toast({
       title: "Quiz Created",
       description: "Your quiz has been created and saved.",
@@ -128,281 +150,250 @@ export default function CreateQuiz() {
 
   return (
     <Layout title="Create Quiz">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto py-8">
+        {/* Quiz Info */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Quiz Details</CardTitle>
+            <CardTitle>Create New Quiz</CardTitle>
             <CardDescription>
-              Set the basic information for your new quiz
+              Fill in the quiz details and add questions.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Quiz Title</Label>
-              <Input 
-                id="title" 
-                placeholder="e.g. Company Policies Quiz" 
+            <div>
+              <Label>Title</Label>
+              <Input
+                placeholder="Quiz title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea 
-                id="description" 
-                placeholder="Describe the purpose of this quiz" 
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                placeholder="Describe this quiz"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <Label>Start Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !startDate && "text-muted-foreground"
-                      )}
+                      className={cn("w-full justify-start text-left", {
+                        "text-muted-foreground": !startDate,
+                      })}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "PPP") : "Select date"}
+                      {startDate ? format(startDate, "PPP") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent>
                     <Calendar
                       mode="single"
                       selected={startDate}
                       onSelect={setStartDate}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>
               </div>
-              
-              <div className="space-y-2">
+              <div>
                 <Label>End Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !endDate && "text-muted-foreground"
-                      )}
+                      className={cn("w-full justify-start text-left", {
+                        "text-muted-foreground": !endDate,
+                      })}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "PPP") : "Select date"}
+                      {endDate ? format(endDate, "PPP") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent>
                     <Calendar
                       mode="single"
                       selected={endDate}
                       onSelect={setEndDate}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="duration">Duration (minutes)</Label>
-                <div className="flex">
-                  <Input 
-                    id="duration" 
-                    type="number" 
-                    value={duration}
-                    onChange={(e) => setDuration(Number(e.target.value))}
-                    min={1}
-                  />
-                  <Button variant="outline" size="icon" className="ml-2" onClick={() => setDuration(prev => prev + 5)}>
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="ml-2" onClick={() => setDuration(prev => Math.max(1, prev - 5))}>
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Duration (minutes)</Label>
+                <Input
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(parseInt(e.target.value))}
+                />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="passing">Passing Score (%)</Label>
-                <div className="flex">
-                  <Input 
-                    id="passing" 
-                    type="number" 
-                    value={passingScore}
-                    onChange={(e) => setPassingScore(Number(e.target.value))}
-                    min={1}
-                    max={100}
-                  />
-                  <Button variant="outline" size="icon" className="ml-2" onClick={() => setPassingScore(prev => Math.min(100, prev + 5))}>
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="ml-2" onClick={() => setPassingScore(prev => Math.max(1, prev - 5))}>
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div>
+                <Label>Passing Score (%)</Label>
+                <Input
+                  type="number"
+                  value={passingScore}
+                  onChange={(e) => setPassingScore(parseInt(e.target.value))}
+                />
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="proctoring" 
+
+            <div className="flex items-center space-x-4">
+              <Switch
                 checked={proctoring}
                 onCheckedChange={setProctoring}
+                id="proctoring"
               />
               <Label htmlFor="proctoring">Enable Proctoring</Label>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="randomize" 
+
+            <div className="flex items-center space-x-4">
+              <Switch
                 checked={randomize}
                 onCheckedChange={setRandomize}
+                id="randomize"
               />
               <Label htmlFor="randomize">Randomize Questions</Label>
             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Questions */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Questions</CardTitle>
-            <CardDescription>
-              Add and configure questions for your quiz
-            </CardDescription>
+            <CardDescription>Add your quiz questions below</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {questions.map((question, index) => (
-              <div key={question.id} className="space-y-4 p-4 border rounded-md">
+            {questions.map((q, index) => (
+              <div key={q.id} className="p-4 border rounded-md space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Question {index + 1}</h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <h3 className="text-lg font-semibold">Question {index + 1}</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-destructive"
-                    onClick={() => handleRemoveQuestion(question.id)}
+                    onClick={() => handleRemoveQuestion(q.id)}
                   >
                     <Trash className="h-4 w-4 mr-1" />
                     Remove
                   </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor={`question-${question.id}`}>Question Text</Label>
-                  <Input 
-                    id={`question-${question.id}`} 
-                    placeholder="Enter your question here" 
-                    value={question.text}
-                    onChange={(e) => updateQuestion(question.id, { text: e.target.value })}
+
+                <div>
+                  <Label>Question Text</Label>
+                  <Input
+                    value={q.text}
+                    onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
+                    placeholder="Enter your question here"
                   />
                 </div>
-                
-                <div className="space-y-2">
+
+                <div>
                   <Label>Question Type</Label>
-                  <RadioGroup 
-                    defaultValue={question.type} 
-                    className="flex space-x-4"
-                    onValueChange={(value) => handleQuestionTypeChange(question.id, value as "mcq" | "truefalse")}
+                  <RadioGroup
+                    value={q.type}
+                    onValueChange={(val) =>
+                      handleQuestionTypeChange(q.id, val as "mcq" | "truefalse")
+                    }
+                    className="flex gap-4"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="mcq" id={`type-mcq-${question.id}`} />
-                      <Label htmlFor={`type-mcq-${question.id}`}>Multiple Choice</Label>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="mcq" id={`mcq-${q.id}`} />
+                      <Label htmlFor={`mcq-${q.id}`}>Multiple Choice</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="truefalse" id={`type-tf-${question.id}`} />
-                      <Label htmlFor={`type-tf-${question.id}`}>True/False</Label>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="truefalse" id={`tf-${q.id}`} />
+                      <Label htmlFor={`tf-${q.id}`}>True/False</Label>
                     </div>
                   </RadioGroup>
                 </div>
-                
-                {question.type === "mcq" ? (
+
+                {q.type === "mcq" ? (
                   <div className="space-y-3">
                     <Label>Options</Label>
-                    {question.options.map((option, optionIndex) => (
-                      <div key={optionIndex} className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value={optionIndex.toString()} 
-                          id={`option-${question.id}-${optionIndex}`}
-                          checked={question.correctAnswer === optionIndex}
-                          onClick={() => updateQuestion(question.id, { correctAnswer: optionIndex })}
-                        />
-                        <Input 
-                          placeholder={`Option ${optionIndex + 1}`} 
-                          value={option}
-                          onChange={(e) => handleOptionChange(question.id, optionIndex, e.target.value)}
-                          className="flex-1"
-                        />
-                      </div>
-                    ))}
-                    <p className="text-xs text-gray-500 mt-1">Select the radio button next to the correct answer</p>
+                    <RadioGroup
+                      value={q.correctAnswer.toString()}
+                      onValueChange={(val) =>
+                        updateQuestion(q.id, { correctAnswer: parseInt(val) })
+                      }
+                      className="space-y-2"
+                    >
+                      {q.options.map((opt, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <RadioGroupItem value={i.toString()} id={`q${q.id}-opt${i}`} />
+                          <Input
+                            className="flex-1"
+                            placeholder={`Option ${i + 1}`}
+                            value={opt}
+                            onChange={(e) =>
+                              handleOptionChange(q.id, i, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <p className="text-sm text-muted-foreground">
+                      Select the correct answer
+                    </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <Label>Answer</Label>
-                    <RadioGroup 
-                      defaultValue={question.correctAnswer === true ? "true" : "false"} 
-                      className="flex space-x-4"
-                      onValueChange={(value) => updateQuestion(question.id, { correctAnswer: value === "true" })}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id={`true-${question.id}`} />
-                        <Label htmlFor={`true-${question.id}`}>True</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id={`false-${question.id}`} />
-                        <Label htmlFor={`false-${question.id}`}>False</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                  <RadioGroup
+                    value={q.correctAnswer === true ? "true" : "false"}
+                    onValueChange={(val) =>
+                      updateQuestion(q.id, { correctAnswer: val === "true" })
+                    }
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="true" id={`true-${q.id}`} />
+                      <Label htmlFor={`true-${q.id}`}>True</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="false" id={`false-${q.id}`} />
+                      <Label htmlFor={`false-${q.id}`}>False</Label>
+                    </div>
+                  </RadioGroup>
                 )}
               </div>
             ))}
-            
-            <Button onClick={handleAddQuestion} className="w-full" variant="outline">
-              <Plus className="mr-2 h-4 w-4" />
+
+            <Button onClick={handleAddQuestion} variant="outline" className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
               Add Another Question
             </Button>
           </CardContent>
         </Card>
-        
+
+        {/* Participants */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Participants</CardTitle>
+            <CardTitle>Assign Participants</CardTitle>
             <CardDescription>
-              Add participants who will take this quiz
+              Add comma-separated email addresses of participants.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="emails">Participant Emails</Label>
-              <Textarea 
-                id="emails" 
-                placeholder="Enter email addresses, one per line"
-                className="min-h-[120px]"
-                value={participantEmails}
-                onChange={(e) => setParticipantEmails(e.target.value)}
-              />
-              <p className="text-xs text-gray-500">
-                Enter one email address per line, or upload a CSV file
-              </p>
-            </div>
-            
-            <Button variant="outline" className="w-full">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload CSV
+            <Textarea
+              placeholder="employee1@example.com, employee2@example.com"
+              value={participantEmails}
+              onChange={(e) => setParticipantEmails(e.target.value)}
+            />
+            <Button variant="outline">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload CSV (Coming Soon)
             </Button>
           </CardContent>
         </Card>
-        
-        <div className="flex justify-end gap-4 mb-10">
+
+        {/* Actions */}
+        <div className="flex justify-end gap-4">
           <Button variant="outline">Save as Draft</Button>
           <Button onClick={handleSubmit}>Create Quiz</Button>
         </div>
