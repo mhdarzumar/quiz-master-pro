@@ -1,5 +1,5 @@
 
-import { BarChart, LineChart, PieChart } from "lucide-react";
+import { BarChart, LineChart, PieChart, Users } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,7 +15,8 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const statCards = [
   {
@@ -35,7 +36,7 @@ const statCards = [
   {
     title: "Completion Rate",
     value: "87%",
-    icon: Pie,
+    icon: PieChart,
     description: "3% decrease from last month",
     trend: "down",
   },
