@@ -1,5 +1,4 @@
-
-import { BarChart, LineChart, PieChart } from "lucide-react";
+import { BarChart, LineChart, PieChart, Users } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,7 +14,14 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table as UITable,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 const statCards = [
@@ -94,10 +100,6 @@ const recentQuizzes = [
   },
 ];
 
-import { Users } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-
 export default function Dashboard() {
   return (
     <Layout title="Dashboard">
@@ -173,7 +175,7 @@ export default function Dashboard() {
           <CardTitle>Recent Quizzes</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <UITable>
             <TableHeader>
               <TableRow>
                 <TableHead>Quiz Title</TableHead>
@@ -207,7 +209,7 @@ export default function Dashboard() {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </UITable>
         </CardContent>
       </Card>
     </Layout>
