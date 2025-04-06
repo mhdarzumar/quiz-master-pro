@@ -1,8 +1,21 @@
 
-import { BarChart, LineChart, Pie, PieChart } from "lucide-react";
+import { BarChart, LineChart, PieChart } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, PieChart as RechartPieChart, Pie as RechartPie, Cell, BarChart as RechartBarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
+import {
+  ResponsiveContainer,
+  PieChart as RechartPieChart,
+  Pie as RechartPie,
+  Cell,
+  BarChart as RechartBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
+
 
 const statCards = [
   {
