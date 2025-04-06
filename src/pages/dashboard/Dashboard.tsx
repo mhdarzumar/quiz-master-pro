@@ -1,5 +1,5 @@
 
-import { BarChart, LineChart, PieChart, Users } from "lucide-react";
+import { BarChart, LineChart, PieChart } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
